@@ -60,7 +60,7 @@ for index, value in date_str_dict.items():
 
 colors = {'background': '#111111', 'text': '#7FDBFF','button':'#FFFF00'}
 app = dash.Dash()
-
+server = app.server
 app.layout = html.Div([
         html.Br(),
         html.Br(),
