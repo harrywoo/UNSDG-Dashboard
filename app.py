@@ -60,33 +60,29 @@ for index, value in date_str_dict.items():
 
 colors = {'background': '#111111', 'text': '#7FDBFF','button':'#FFFF00'}
 app = dash.Dash()
-server = app.server
+
 app.layout = html.Div([
         html.Br(),
         html.Br(),
         # header and logo
         html.Div([
-            html.H1('SDG Time Series', className = 'ten columns', style = {'margin-top': 10,'margin-left': 15, 'color': colors['text']}),
-
             html.Img(
                 src = 'https://images.squarespace-cdn.com/content/5c036cd54eddec1d4ff1c1eb/1557908564936-YSBRPFCGYV2CE43OHI7F/GlobalAI_logo.jpg?content-type=image%2Fpng',
                 style = {
                     'height': '11%',
                     'width': '11%',
-                    'float': 'right',
+                    'float': 'mid',
                     'position': 'relative',
-                    'margin-top': 11,
+                    'margin-top': 0,
                     'margin-right': 0
                 },
                 className = 'two columns'        
-            )  
+            ),
+            html.Br(),
+            html.Br(),
+            html.H2('SDG Time Series', className = 'ten columns', style = {'margin-top': 0,'margin-left': 0, 'color': colors['text']}),
         ], className = 'row'),
 
-        html.Br(),
-        html.Br(),
-        html.Br(),
-        
-    
         # select the company 
         html.Div([
             html.H3('Select the company:', style={'paddingRight':'30px','color': '#9999FF'}),
@@ -95,7 +91,7 @@ app.layout = html.Div([
             options = [{'label':i, 'value':i} for i in company],
             value = 'apple inc'
             )
-        ], style={"width": "25%"}),
+        ], style={"width": "30%", 'margin-left': 10, 'display': 'inline-block'}),
         
         # select the type of MA you want to see
         html.Div([
@@ -105,7 +101,7 @@ app.layout = html.Div([
             options = [{'label':i, 'value':i} for i in data_type],
             value = data_type[0]
             )
-        ], style={"width": "25%"}),
+        ], style={"width": "30%", 'margin-left': 10, 'display': 'inline-block'}),
         
         # select time range of MA time series
         html.Div([
@@ -115,7 +111,7 @@ app.layout = html.Div([
     
         # Scatter chart
         html.Div([
-             html.H3('Time series of MA_sdg you selected', style={'paddingRight':'30px','color': colors['text']}),
+             html.H3('Time series you selected', style={'paddingRight':'30px','color': colors['text']}),
         html.Div([
                 dcc.Graph(id = 'scatter')
             ], className = 'twelve columns'),
@@ -124,7 +120,7 @@ app.layout = html.Div([
         html.Br(), 
         # Histogram chart
         html.Div([
-             html.H3('Distribution of SDG you selected', style={'paddingRight':'30px','color': colors['text']}),
+             html.H3('Histogram you selected', style={'paddingRight':'30px','color': colors['text']}),
         html.Div([
                 dcc.Graph(id = 'histogram')
             ], className = 'twelve columns'),
@@ -133,13 +129,12 @@ app.layout = html.Div([
         html.Br(),
         # Heatmap
         html.Div([
-             html.H3('Distribution of SDG you selected', style={'paddingRight':'30px','color': colors['text']}),
+             html.H3('Heatmap you selected', style={'paddingRight':'30px','color': colors['text']}),
         html.Div([
                 dcc.Graph(id = 'heatmap')
             ], className = 'twelve columns'),
         ], className = 'row',style={"height" : '50vh', "width" : "70%",'margin-left': 0, 
-                                    'margin-right': 0,'margin-top':0,'margin-bottom':0}),
-        html.Br(),
+                                    'margin-right': 0,'margin-top':0,'margin-bottom':100}),
 
 ],style = {'backgroundColor': colors['background']}) 
         
@@ -157,12 +152,13 @@ def update_figure(company, data_type, current_date):
     start_date = current_date - datetime.timedelta(days=30)
 
     df = df[(df["date"]>=start_date) & (df["date"]<=current_date)]
-    
+
     trace = [go.Scatter(x=df["date"], y=df[x], mode='lines',
-                            marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, ) for x in data_type_dict[data_type]]
+                            marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, name = f'line_{x}' ) for x in data_type_dict[data_type]]
     return {"data": trace,
             "layout": go.Layout(plot_bgcolor = colors['background'],
-                  paper_bgcolor = colors['background'],font = {'color': colors['text']},title="Daily line chart of SDG", colorway=['#fdae61', '#abd9e9'],
+                  paper_bgcolor = colors['background'],font = {'color': colors['text']},title="Scatter line chart", colorway=['#fdae61', '#abd9e9','#808000','#00FF00','#191970','#FDF5E6','#EEE8AA','#FFC0CB','#DDA0DD','#800080','#FF0000',
+                                                                                                                             '#2E8B57','#6A5ACD','#EE82EE','#F5DEB3','#FFFF00','#D2B48C'], height=700,
                                 yaxis={"title": "Rate"}, xaxis={"title": "Date"})}
 
 @app.callback(
@@ -177,10 +173,11 @@ def update_figure(company, data_type, current_date):
 
     df = df[(df["date"]>=start_date) & (df["date"]<=current_date)]
     
-    trace = [go.Histogram(x=df[x]) for x in data_type_dict[data_type]]
+    trace = [go.Histogram(x=df[x], name = f'histogram_{x}') for x in data_type_dict[data_type]]
     return {"data": trace,
             "layout": go.Layout(plot_bgcolor = colors['background'],
-                  paper_bgcolor = colors['background'],font = {'color': colors['text']},title="Daily histogram of SDG", colorway=['#fdae61', '#abd9e9'],
+                  paper_bgcolor = colors['background'],font = {'color': colors['text']},title="Daily histogram", colorway=['#fdae61', '#abd9e9','#808000','#00FF00','#191970','#FDF5E6','#EEE8AA','#FFC0CB','#DDA0DD','#800080','#FF0000',
+                                                                                                                             '#2E8B57','#6A5ACD','#EE82EE','#F5DEB3','#FFFF00','#D2B48C'], height=700,
                                 yaxis={"title": "Rate"}, xaxis={"title": "Date"})}
 
 @app.callback(
@@ -194,10 +191,10 @@ def update_figure(company, data_type, current_date):
     date = current_date - datetime.timedelta(days=1)
     df = df[df["date"]==date]
     
-    trace = [go.Heatmap(z=df[sdg_type])]
+    trace = [go.Heatmap(z=df[sdg_type], colorscale = [[0,'rgb(1,64,255)'], [1,'rgb(250,236,255)']])]
     return {"data": trace,
             "layout": go.Layout(plot_bgcolor = colors['background'],
-                  paper_bgcolor = colors['background'],font = {'color': colors['text']},title="Daily heatmap of SDG", colorway=['#fdae61', '#abd9e9'], 
+                  paper_bgcolor = colors['background'],font = {'color': colors['text']},title="Daily heatmap", 
                                 yaxis={"title": "Rate"}, xaxis={"title": "Date"})}
 
 if __name__ == '__main__':
